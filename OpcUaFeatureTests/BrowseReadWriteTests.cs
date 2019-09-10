@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
@@ -35,8 +34,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
-                "opc.tcp://localhost:48010",
-                SecurityPolicyUris.Basic256Sha256);
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             // try opening a session and reading a few nodes.
             await channel.OpenAsync();
@@ -67,14 +65,14 @@ namespace OpcUaFeatureTests
             // A DataValue holds the sampled value, timestamps and quality status code.
             var serverStatus = readResult.Results[0].GetValueOrDefault<ServerStatusDataType>();
 
-            Console.WriteLine("Server status:");
+            Console.WriteLine("\nServer status:");
             Console.WriteLine("  ProductName: {0}", serverStatus.BuildInfo.ProductName);
             Console.WriteLine("  SoftwareVersion: {0}", serverStatus.BuildInfo.SoftwareVersion);
             Console.WriteLine("  ManufacturerName: {0}", serverStatus.BuildInfo.ManufacturerName);
             Console.WriteLine("  State: {0}", serverStatus.State);
             Console.WriteLine("  CurrentTime: {0}", serverStatus.CurrentTime);
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
+            Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
             await channel.CloseAsync();
         }
 
@@ -103,8 +101,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(),
-                "opc.tcp://localhost:48010",
-                SecurityPolicyUris.Basic256Sha256);
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             // try opening a session and reading a few nodes.
             await channel.OpenAsync();
@@ -138,12 +135,12 @@ namespace OpcUaFeatureTests
             // send the request to the server
             var browseResponse = await channel.BrowseAsync(browseRequest).ConfigureAwait(false);
 
-            Console.WriteLine("+ Objects, 0:Objects, Object");
+            Console.WriteLine("\n+ Objects, 0:Objects, Object, i=85");
 
             Assert.IsNotNull(browseResponse.Results[0].References);
             foreach (var rd in browseResponse.Results[0].References)
             {
-                Console.WriteLine("   + {0}, {1}, {2}", rd.DisplayName, rd.BrowseName, rd.NodeClass);
+                Console.WriteLine("   + {0}, {1}, {2}, {3}", rd.DisplayName, rd.BrowseName, rd.NodeClass, rd.NodeId);
             }
 
             // it is good practice to be prepared to receive a continuationPoint. 
@@ -164,7 +161,7 @@ namespace OpcUaFeatureTests
                 cp = browseNextResponse.Results[0].ContinuationPoint;
             }
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
+            Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
             await channel.CloseAsync();
         }
 
@@ -191,8 +188,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
-                "opc.tcp://localhost:48010",
-                SecurityPolicyUris.Basic256Sha256);
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             // try opening a session and reading a few nodes.
             await channel.OpenAsync();
@@ -255,8 +251,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
-                "opc.tcp://localhost:48010",
-                SecurityPolicyUris.Basic256Sha256);
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             // try opening a session and reading a few nodes.
             await channel.OpenAsync();

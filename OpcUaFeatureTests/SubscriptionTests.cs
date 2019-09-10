@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
@@ -13,7 +12,7 @@ namespace OpcUaFeatureTests
     public class SubscriptionTests
     {
         /// <summary>
-        /// Tests creating a subscription and monitoring current time.
+        /// Creates a subscription and monitors current time.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [TestMethod]
@@ -35,8 +34,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
-                "opc.tcp://localhost:48010",
-                SecurityPolicyUris.Basic256Sha256);
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             // try opening a session and reading a few nodes.
             await channel.OpenAsync();
@@ -49,7 +47,7 @@ namespace OpcUaFeatureTests
             // build a CreateSubscriptionRequest. See 'OPC UA Spec Part 4' paragraph 5.13.2
             var req = new CreateSubscriptionRequest
             {
-                RequestedPublishingInterval = 500.0, // intervals are in milliseconds
+                RequestedPublishingInterval = 1000.0, // intervals are in milliseconds
                 RequestedMaxKeepAliveCount = 30,
                 RequestedLifetimeCount = 30 * 3,
                 PublishingEnabled = true,
@@ -73,13 +71,14 @@ namespace OpcUaFeatureTests
                         ItemToMonitor= new ReadValueId{ AttributeId= AttributeIds.Value, NodeId= NodeId.Parse(VariableIds.Server_ServerStatus_CurrentTime)},
                         MonitoringMode= MonitoringMode.Reporting,
                         // specify a unique ClientHandle. The ClientHandle is returned in the PublishResponse
-                        RequestedParameters= new MonitoringParameters{ ClientHandle= 42, QueueSize= 2, DiscardOldest= true, SamplingInterval= 250.0},
+                        RequestedParameters= new MonitoringParameters{ ClientHandle= 42, QueueSize= 2, DiscardOldest= true, SamplingInterval= 1000.0},
                     },
                 },
             };
             var res2 = await channel.CreateMonitoredItemsAsync(req2);
 
-            Console.WriteLine("Subscribe to PublishResponse stream.");
+            Console.WriteLine("\nSubscribe to PublishResponse stream.");
+
             // when the session is open, the client sends a stream of PublishRequests to the server.
             // You can subscribe to all the PublishResponses -or- subscribe to the responses from 
             // a single subscription.
@@ -88,32 +87,30 @@ namespace OpcUaFeatureTests
                 .Where(pr => pr.SubscriptionId == id)
                 // subscribe with an 'OnNext' function, and an 'OnError' function
                 .Subscribe(
-                pr =>
-                {
-    // loop thru all the data change notifications
-    var dcns = pr.NotificationMessage.NotificationData.OfType<DataChangeNotification>();
-    foreach (var dcn in dcns)
-    {
-        foreach (var min in dcn.MonitoredItems)
-        {
-            Console.WriteLine($"sub: {pr.SubscriptionId}; handle: {min.ClientHandle}; value: {min.Value}");
-        }
-    }
-                },
-                ex =>
-                {
-                    Console.WriteLine("Exception in publish response handler: {0}", ex.GetBaseException().Message);
-                });
+                    pr =>
+                    {
+                        // loop thru all the data change notifications and write them out.
+                        var dcns = pr.NotificationMessage.NotificationData.OfType<DataChangeNotification>();
+                        foreach (var dcn in dcns)
+                        {
+                            foreach (var min in dcn.MonitoredItems)
+                            {
+                                Console.WriteLine($"sub: {pr.SubscriptionId}; handle: {min.ClientHandle}; value: {min.Value}");
+                            }
+                        }
+                    },
+                    ex => Console.WriteLine("Exception in publish response handler: {0}", ex.GetBaseException().Message)
+                );
 
             // publish for 5 seconds and then close.
             await Task.Delay(5000);
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
+            Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
             await channel.CloseAsync();
         }
 
         /// <summary>
-        /// Tests creating a subscription and monitoring events.
+        /// Creates a subscription and monitors events.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [TestMethod]
@@ -135,8 +132,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
-                "opc.tcp://localhost:48010",
-                SecurityPolicyUris.Basic256Sha256);
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             // try opening a session and reading a few nodes.
             await channel.OpenAsync();
@@ -181,7 +177,8 @@ namespace OpcUaFeatureTests
             };
             var res2 = await channel.CreateMonitoredItemsAsync(req2);
 
-            Console.WriteLine("Subscribe to PublishResponse stream.");
+            Console.WriteLine("\nSubscribe to PublishResponse stream.");
+
             // when the session is open, the client sends a stream of PublishRequests to the server.
             // You can subscribe to all the PublishResponses -or- subscribe to the responses from 
             // a single subscription.
@@ -190,44 +187,43 @@ namespace OpcUaFeatureTests
                 .Where(pr => pr.SubscriptionId == id)
                 // subscribe with an 'OnNext' function, and an 'OnError' function
                 .Subscribe(
-                pr =>
-                {
-    // loop thru all the event notifications
-    var enls = pr.NotificationMessage.NotificationData.OfType<EventNotificationList>();
-    foreach (var enl in enls)
-    {
-        foreach (var efl in enl.Events)
-        {
-            var ev = EventHelper.Deserialize<BaseEvent>(efl.EventFields);
-            Console.WriteLine($"time: {ev.Time}, src: {ev.SourceName}, msg: {ev.Message}, sev: {ev.Severity}");
-        }
-    }
-                },
-                ex =>
-                {
-                    Console.WriteLine("Exception in publish response handler: {0}", ex.GetBaseException().Message);
-                });
+                    pr =>
+                    {
+                        // loop thru all the event notifications and write them out.
+                        var enls = pr.NotificationMessage.NotificationData.OfType<EventNotificationList>();
+                        foreach (var enl in enls)
+                        {
+                            foreach (var efl in enl.Events)
+                            {
+                                var ev = EventHelper.Deserialize<BaseEvent>(efl.EventFields);
+                                Console.WriteLine($"time: {ev.Time}, src: {ev.SourceName}, msg: {ev.Message}, sev: {ev.Severity}");
+                            }
+                        }
+                    },
+                    ex => Console.WriteLine("Exception in publish response handler: {0}", ex.GetBaseException().Message)
+               );
 
-            // publish for 20 seconds and then close.
+            // publish for 5 seconds and then close.
             for (int i = 0; i < 10; i++)
             {
                 // trigger an event on the Unified Automation server.
                 var writeResult = await channel.WriteAsync(
                     new WriteRequest
                     {
+                        // Write true, false, true, false, ...
                         NodesToWrite = new[] {
                             new WriteValue {
                                 NodeId = NodeId.Parse("ns=2;s=Demo.Events.Trigger_BaseEvent"),
                                 AttributeId = AttributeIds.Value,
-                                Value = new DataValue(i%2 == 0)
+                                Value = new DataValue(i%2 == 0) 
                             }
                         }
                     }
                 );
-                await Task.Delay(2000);
+                await Task.Delay(500);
             }
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
+            Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
             await channel.CloseAsync();
         }
     }
