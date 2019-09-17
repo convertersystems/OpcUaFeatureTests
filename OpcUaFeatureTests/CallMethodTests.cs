@@ -35,22 +35,24 @@ namespace OpcUaFeatureTests
                 new AnonymousIdentity(), // the anonymous identity
                 "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
-            // try opening a session and reading a few nodes.
-            await channel.OpenAsync();
-
-            Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
-            Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
-            Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
-            Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
-
-            Console.WriteLine("\nCall Multiply method with two arguments.");
-            var a = 6.0;
-            var b = 7.0;
-
-            // build a CallRequest. See 'OPC UA Spec Part 4' paragraph 5.11.2
-            var request = new CallRequest
+            try
             {
-                MethodsToCall = new[] {
+                // try opening a session and reading a few nodes.
+                await channel.OpenAsync();
+
+                Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
+                Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
+                Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
+                Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
+
+                Console.WriteLine("\nCall Multiply method with two arguments.");
+                var a = 6.0;
+                var b = 7.0;
+
+                // build a CallRequest. See 'OPC UA Spec Part 4' paragraph 5.11.2
+                var request = new CallRequest
+                {
+                    MethodsToCall = new[] {
                     new CallMethodRequest
                     {
                         // calling a method usually requires two nodeids.
@@ -62,21 +64,25 @@ namespace OpcUaFeatureTests
                         InputArguments = new [] { new Variant(a), new Variant(b) }
                     }
                 }
-            };
-            // send the request to the server.
-            var response = await channel.CallAsync(request);
-            // 'Results' will be an array of CallResponse, one for every CallMethodRequest.
-            var result = response.Results[0].OutputArguments[0].GetValueOrDefault<double>();
+                };
+                // send the request to the server.
+                var response = await channel.CallAsync(request);
+                // 'Results' will be an array of CallResponse, one for every CallMethodRequest.
+                var result = response.Results[0].OutputArguments[0].GetValueOrDefault<double>();
 
-            Console.WriteLine($"  {a}");
-            Console.WriteLine($"* {b}");
-            Console.WriteLine(@"  ------------------");
-            Console.WriteLine($"  {result}");
+                Console.WriteLine($"  {a}");
+                Console.WriteLine($"* {b}");
+                Console.WriteLine(@"  ------------------");
+                Console.WriteLine($"  {result}");
 
-            Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
-            await channel.CloseAsync();
-
-            Assert.IsTrue(result == 42.0);
+                Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
+                await channel.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await channel.AbortAsync();
+                Console.WriteLine(ex.Message);
+            }
         }
 
         /// <summary>
@@ -105,22 +111,24 @@ namespace OpcUaFeatureTests
                 "opc.tcp://localhost:48010", // the endpoint of Unified Automation's UaCPPServer.
                 additionalTypes: new[] { typeof(Vector) });  // tell the decoder about any custom structures
 
-            // try opening a session and reading a few nodes.
-            await channel.OpenAsync();
-
-            Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
-            Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
-            Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
-            Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
-
-            Console.WriteLine("\nCall VectorAdd method with structure arguments.");
-            var v1 = new Vector { X = 1.0, Y = 2.0, Z = 3.0 };
-            var v2 = new Vector { X = 1.0, Y = 2.0, Z = 3.0 };
-
-            // build a CallRequest. See 'OPC UA Spec Part 4' paragraph 5.11.2
-            var request = new CallRequest
+            try
             {
-                MethodsToCall = new[] {
+                // try opening a session and reading a few nodes.
+                await channel.OpenAsync();
+
+                Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
+                Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
+                Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
+                Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
+
+                Console.WriteLine("\nCall VectorAdd method with structure arguments.");
+                var v1 = new Vector { X = 1.0, Y = 2.0, Z = 3.0 };
+                var v2 = new Vector { X = 1.0, Y = 2.0, Z = 3.0 };
+
+                // build a CallRequest. See 'OPC UA Spec Part 4' paragraph 5.11.2
+                var request = new CallRequest
+                {
+                    MethodsToCall = new[] {
                     new CallMethodRequest
                     {
                         // calling a method usually requires two nodeids.
@@ -132,21 +140,25 @@ namespace OpcUaFeatureTests
                         InputArguments = new [] { new ExtensionObject(v1), new ExtensionObject(v2) }.ToVariantArray()
                     }
                 }
-            };
-            // send the request to the server.
-            var response = await channel.CallAsync(request);
-            // 'Results' will be an array of CallResponse, one for every CallMethodRequest.
-            var result = response.Results[0].OutputArguments[0].GetValueOrDefault<Vector>();
+                };
+                // send the request to the server.
+                var response = await channel.CallAsync(request);
+                // 'Results' will be an array of CallResponse, one for every CallMethodRequest.
+                var result = response.Results[0].OutputArguments[0].GetValueOrDefault<Vector>();
 
-            Console.WriteLine($"  {v1}");
-            Console.WriteLine($"+ {v2}");
-            Console.WriteLine(@"  ------------------");
-            Console.WriteLine($"  {result}");
+                Console.WriteLine($"  {v1}");
+                Console.WriteLine($"+ {v2}");
+                Console.WriteLine(@"  ------------------");
+                Console.WriteLine($"  {result}");
 
-            Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
-            await channel.CloseAsync();
-
-            Assert.IsTrue(result.Z == 6.0);
+                Console.WriteLine($"\nClosing session '{channel.SessionId}'.");
+                await channel.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await channel.AbortAsync();
+                Console.WriteLine(ex.Message);
+            }
         }
 
         [DataTypeId("nsu=http://www.unifiedautomation.com/DemoServer/;i=3002")]

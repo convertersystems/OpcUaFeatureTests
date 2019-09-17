@@ -33,17 +33,25 @@ namespace OpcUaFeatureTests
                 "opc.tcp://localhost:48010", // the endpoint of Unified Automation's UaCPPServer.
                 SecurityPolicyUris.None);
 
-            // try opening a session and reading a few nodes.
-            await channel.OpenAsync();
+            try
+            {
+                // try opening a session and reading a few nodes.
+                await channel.OpenAsync();
 
-            // success! client session opened with these settings.
-            Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
-            Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
-            Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
-            Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
+                // success! client session opened with these settings.
+                Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
+                Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
+                Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
+                Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
-            await channel.CloseAsync();
+                Console.WriteLine($"Closing session '{channel.SessionId}'.");
+                await channel.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await channel.AbortAsync();
+                Console.WriteLine(ex.Message);
+            }
         }
 
         /// <summary>
@@ -75,22 +83,31 @@ namespace OpcUaFeatureTests
                 new AnonymousIdentity(), // the anonymous identity
                 "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
-            // try opening a session and reading a few nodes.
-            await channel.OpenAsync();
+            try
+            {
+                // try opening a session and reading a few nodes.
+                await channel.OpenAsync();
 
-            // success! client session opened with these settings.
-            Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
-            Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
-            Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
-            Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
+                // success! client session opened with these settings.
+                Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
+                Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
+                Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
+                Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
-            await channel.CloseAsync();
+                Console.WriteLine($"Closing session '{channel.SessionId}'.");
+                await channel.CloseAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await channel.AbortAsync();
+                Console.WriteLine(ex.Message);
+            }
         }
 
         /// <summary>
         /// Connects to server endpoint with user name and password. The password
-        /// will be encrypted. The Unified Automation's server has user "root" with password "secret"
+        /// will be encrypted. The Unified Automation's server accepts user "root" with password "secret"
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [TestMethod]
@@ -114,17 +131,26 @@ namespace OpcUaFeatureTests
                 new UserNameIdentity("root", "secret"),
                 "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
-            // try opening a session and reading a few nodes.
-            await channel.OpenAsync();
+            try
+            {
+                // try opening a session and reading a few nodes.
+                await channel.OpenAsync();
 
-            // success! client session opened with these settings.
-            Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
-            Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
-            Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
-            Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
+                // success! client session opened with these settings.
+                Console.WriteLine($"Opened session with endpoint '{channel.RemoteEndpoint.EndpointUrl}'.");
+                Console.WriteLine($"SecurityPolicy: '{channel.RemoteEndpoint.SecurityPolicyUri}'.");
+                Console.WriteLine($"SecurityMode: '{channel.RemoteEndpoint.SecurityMode}'.");
+                Console.WriteLine($"UserIdentityToken: '{channel.UserIdentity}'.");
 
-            Console.WriteLine($"Closing session '{channel.SessionId}'.");
-            await channel.CloseAsync();
+                Console.WriteLine($"Closing session '{channel.SessionId}'.");
+                await channel.CloseAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await channel.AbortAsync();
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
