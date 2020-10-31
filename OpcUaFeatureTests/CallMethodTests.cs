@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Workstation.ServiceModel.Ua;
 using Workstation.ServiceModel.Ua.Channels;
 
+[assembly:TypeLibrary]
 namespace OpcUaFeatureTests
 {
     [TestClass]
@@ -108,8 +109,7 @@ namespace OpcUaFeatureTests
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
-                "opc.tcp://localhost:48010", // the endpoint of Unified Automation's UaCPPServer.
-                additionalTypes: new[] { typeof(Vector) });  // tell the decoder about any custom structures
+                "opc.tcp://localhost:48010"); // the endpoint of Unified Automation's UaCPPServer.
 
             try
             {
