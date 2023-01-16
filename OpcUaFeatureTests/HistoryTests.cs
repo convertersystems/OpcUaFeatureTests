@@ -29,8 +29,8 @@ namespace OpcUaFeatureTests
             // place to store certificates
             var certificateStore = new DirectoryStore("./pki");
 
-            // create a 'UaTcpSessionChannel', a client-side channel that opens a 'session' with the server.
-            var channel = new UaTcpSessionChannel(
+            // create a 'ClientSessionChannel', a client-side channel that opens a 'session' with the server.
+            var channel = new ClientSessionChannel(
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
@@ -167,8 +167,8 @@ namespace OpcUaFeatureTests
             // place to store certificates
             var certificateStore = new DirectoryStore("./pki");
 
-            // create a 'UaTcpSessionChannel', a client-side channel that opens a 'session' with the server.
-            var channel = new UaTcpSessionChannel(
+            // create a 'ClientSessionChannel', a client-side channel that opens a 'session' with the server.
+            var channel = new ClientSessionChannel(
                 clientDescription,
                 certificateStore,
                 new AnonymousIdentity(), // the anonymous identity
